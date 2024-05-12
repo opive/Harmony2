@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, render_template
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
@@ -23,7 +23,6 @@ login_manager.login_view = 'users.login'
 #Blueprints
 from website.core.views import core
 from website.error_pages.handlers import error_pages
-
 
 
 
