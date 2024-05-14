@@ -2,7 +2,6 @@ from flask import Flask, Blueprint, render_template, redirect, request, jsonify,
 from dotenv import load_dotenv
 import requests
 from datetime import datetime
-import env
 import os
 import urllib.parse
 
@@ -14,13 +13,12 @@ def login():
     params = {
         'client_id' : os.getenv('CLIENT_ID'),
         'response_type' : 'code',
-        'scope' : 'scope',
+        'scope' : 'user-library-read',
         'redirect_uri' : os.getenv('REDIRECT_URI'),
         'show_dialogue' : True
 
         #Access token is given once they login, so they don't have to log in everytime
         }
-
     auth_url = f"{os.getenv('AUTH_URL')}?{urllib.parse.urlencode(params)}"
     #Get request must be made to an authorization URL, params must be parsed. URLib encodes the params 
     return redirect(auth_url)

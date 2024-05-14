@@ -19,8 +19,8 @@ login_manager.init_app(app)
 login_manager.login_view = 'users.login'
 
  
-
 #Blueprints
+
 from website.core.views import core
 from website.error_pages.handlers import error_pages
 
