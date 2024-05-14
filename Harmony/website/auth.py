@@ -10,12 +10,13 @@ load_dotenv()
 auth = Blueprint('auth', __name__)
 @auth.route('/login')
 def login():
+    print("lol")
     params = {
         'client_id' : os.getenv('CLIENT_ID'),
         'response_type' : 'code',
-        'scope' : 'user-library-read',
+        'scope' : 'user-read-private user-read-email playlist-read-private',
         'redirect_uri' : os.getenv('REDIRECT_URI'),
-        'show_dialogue' : True
+        'show_dialog' : False
 
         #Access token is given once they login, so they don't have to log in everytime
         }
