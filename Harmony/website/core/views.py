@@ -13,22 +13,22 @@ core = Blueprint('core', __name__)
 def index():
     if 'access_token' not in session:
         return render_template("index.html")
+    
     if datetime.now().timestamp() > session['expires_at']:
         return redirect('/refresh-token')
     
-    if 'access_token' in session:
-        headers = {
-        'Authorization': f"Bearer {session['access_token']}"
-        }
-        response = requests.get(os.getenv("API_BASE_URL") + 'me', headers=headers)
-        print(os.getenv("API_BASE_URL") + 'me/')
-        userInfo = response.json()
-        response = requests.get(os.getenv("API_BASE_URL") + 'me', headers=headers)
-        return render_template("profile.html", 
-                        username = userInfo["display_name"], 
-                        country = userInfo["country"], 
-                        followers = userInfo["followers"]['total'],
-                        logged = True)
+
+    headers = {
+    'Authorization': f"Bearer {session['access_token']}"
+    }
+    response = requests.get(os.getenv("API_BASE_URL") + 'me', headers=headers)
+    user_info = response.json()
+    response = requests.get(os.getenv("API_BASE_URL") + 'me', headers=headers)
+    return render_template("profile.html", profile_info=user_info,
+            username = user_info["display_name"], 
+            country = user_info["country"], 
+            followers = user_info["followers"]['total'],
+            logged = True)
 
 @core.route('about')
 def info():

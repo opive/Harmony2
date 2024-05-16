@@ -31,25 +31,42 @@ def callback():
     if 'error' in request.args:
         print("you're cooked")
         return jsonify({"error": request.args['error']})
-    #returns error if something is wrong with the user's account
+    # returns error if something is wrong with the user's account
 
-    if 'code' in request.args: #build a request that contains data to send
+    if 'code' in request.args: # build a request that contains data to send
         print("you cooked")
         req = {
-            'code' : request.args['code'],
-            'grant_type' : 'authorization_code',
+            'code': request.args['code'],
+            'grant_type': 'authorization_code',
             'redirect_uri': os.getenv("REDIRECT_URI"),
             'client_id': os.getenv("CLIENT_ID"),
             'client_secret': os.getenv("CLIENT_SECRET"),
         }
         token_url = os.getenv("TOKEN_URL")
-        response = requests.post(token_url, data=req) #send token url for access token
-        token_info = response.json() #spotify will give back token info as a json object
+        print(f"Requesting token with data: {req}")
+        response = requests.post(token_url, data=req) # send token url for access token
         
-        session['access_token'] = token_info['access_token']
-        session['refresh_token'] = token_info['refresh_token']
-        session['expires_at'] = datetime.now().timestamp() + token_info['expires_in']
+        try:
+            response.raise_for_status()  # Raise an HTTPError for bad responses
+        except requests.exceptions.HTTPError as e:
+            print(f"HTTPError: {e.response.status_code} - {e.response.reason}")
+            print(f"Response content: {e.response.text}")
+            return jsonify({"error": "Failed to fetch access token."})
+        
+        token_info = response.json()
+        print(f"Received token info: {token_info}")
+
+        if 'access_token' in token_info:
+            session['access_token'] = token_info['access_token']
+            session['refresh_token'] = token_info['refresh_token']
+            session['expires_at'] = datetime.now().timestamp() + token_info['expires_in']
+        else:
+            print("access_token not found in the response.")
+            return jsonify({"error": "access_token not found in the response."})
+
         return redirect('/')
+
+
     
 @auth.route('/playlists')
 def get_playlists():
@@ -106,7 +123,8 @@ def get_user():
         'display_name': response.json().get('display_name'),
         'email': response.json().get('email'),
         'country': response.json().get('country'),
-        'followers': response.json().get('followers')
+        'followers': response.json().get('followers'),
+        'id': response.json().get('id')
     }
 
     return render_template('profile.html', profile_info=profile_info)
