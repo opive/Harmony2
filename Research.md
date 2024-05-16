@@ -28,4 +28,8 @@ ChatGPT prompt: how to fix "Jinja undefined error" when running Flask applicatio
 
 ChatGPT prompt: MissingSchema error on Flask application how to fix
 
+Question: "You have not concluded your merge.
+Source: https://stackoverflow.com/questions/11646107/you-have-not-concluded-your-merge-merge-head-exists
+Reason: My commits weren't committing
+
 ChatGPT prompt: 
