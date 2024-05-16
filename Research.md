@@ -23,7 +23,8 @@ Source: https://www.youtube.com/watch?v=olY_2MW4Eik&t=438s&ab_channel=ImdadCodes
 Reason: Wanted to learn how to authenticate the user with Spotify and connect with the API to get user information
 
 
-ChatGPT prompt: how to fix "Jinja undefined error" when running Flask application
+ChatGPT prompt: how to fix "Jinja undefined error" when running Flask application. 
+
 
 ChatGPT prompt: MissingSchema error on Flask application how to fix
 
