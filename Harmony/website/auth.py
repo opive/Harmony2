@@ -42,14 +42,15 @@ def callback():
             'client_id': os.getenv("CLIENT_ID"),
             'client_secret': os.getenv("CLIENT_SECRET"),
         }
-        response = requests.post("TOKEN_URL", data=req) #send token url for access token
-        token_info = response.json() #spotify will give back token info as a json object
         token_url = os.getenv("TOKEN_URL")
-        session['access_token'] = token_info = ['access_token']
-        session['refresh_token'] = token_info =['refresh_token'] #refreshes access token
-        session['expires_at'] = datetime.now().timestamp() + token_info['expires_in'] #gets current time and adds seconds until token expires
-
+        response = requests.post(token_url, data=req) #send token url for access token
+        token_info = response.json() #spotify will give back token info as a json object
+        
+        session['access_token'] = token_info['access_token']
+        session['refresh_token'] = token_info['refresh_token']
+        session['expires_at'] = datetime.now().timestamp() + token_info['expires_in']
         return redirect('/')
+    
 @auth.route('/playlists')
 def get_playlists():
     if 'access_token' not in session:
@@ -81,7 +82,7 @@ def refresh_token():
             'client_id': os.getenv("CLIENT_ID"),
             'client_secret': os.getenv("CLIENT_SECRET"),
         }
-        response = request.post("https://accounts.spotify.com/api/token/", data=req_body)   
+        response = requests.post("https://accounts.spotify.com/api/token/", data=req_body)   
         new_token_info = response.json()
 
         session['access_token'] = new_token_info['access_token'] #makes the new token the access token
