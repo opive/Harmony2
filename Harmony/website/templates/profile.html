@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<body>
+    <h1>Welcome, {{ profile_info.display_name }}</h1>
+    <p>Email: {{ profile_info.email }}</p>
+    <p>Country: {{ profile_info.country }}</p>
+    <p>Followers: {{ profile_info.followers }}</p>
+</body>
+
+	{% endblock %}
+

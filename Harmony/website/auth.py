@@ -26,7 +26,7 @@ def login():
 
 #Make request to Spotify API
 
-@auth.route('/callback')
+@auth.route('/callback/')
 def callback(): 
     if 'error' in request.args:
         print("you're cooked")
@@ -42,17 +42,15 @@ def callback():
             'client_id': os.getenv("CLIENT_ID"),
             'client_secret': os.getenv("CLIENT_SECRET"),
         }
-        response = request.post("TOKEN_URL", data=req) #send token url for access token
+        response = requests.post("TOKEN_URL", data=req) #send token url for access token
         token_info = response.json() #spotify will give back token info as a json object
-
+        token_url = os.getenv("TOKEN_URL")
         session['access_token'] = token_info = ['access_token']
         session['refresh_token'] = token_info =['refresh_token'] #refreshes access token
         session['expires_at'] = datetime.now().timestamp() + token_info['expires_in'] #gets current time and adds seconds until token expires
 
-    
-        return redirect('/playlists')
-    
-@auth.route('playlists')
+        return redirect('/')
+@auth.route('/playlists')
 def get_playlists():
     if 'access_token' not in session:
         return redirect('/login')
@@ -71,7 +69,6 @@ def get_playlists():
     playlists = response.json()
     return jsonify(playlists) # returns playlists to user
 
-
 @auth.route('/refresh-token')
 def refresh_token(): 
     if 'refresh_token' not in session:
@@ -84,9 +81,32 @@ def refresh_token():
             'client_id': os.getenv("CLIENT_ID"),
             'client_secret': os.getenv("CLIENT_SECRET"),
         }
-        response = request.post(os.getenv("TOKEN_URL"), data=req_body)   
+        response = request.post("https://accounts.spotify.com/api/token/", data=req_body)   
         new_token_info = response.json()
 
         session['access_token'] = new_token_info['access_token'] #makes the new token the access token
         session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in'] #gets current time and adds seconds until token expires
-        return redirect('/playlists')
+        return redirect('/')
+    
+@auth.route('/profile')
+def get_user(): 
+    if 'access_token' not in session:
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh-token')
+    
+    headers = {
+        'Authorization' : f"Bearer {session['access_token']}"
+
+    }
+    response = requests.get(os.getenv("API_BASE_URL") + '/me/', headers=headers)
+    profile_info = {
+        'display_name': response.json().get('display_name'),
+        'email': response.json().get('email'),
+        'country': response.json().get('country'),
+        'followers': response.json().get('followers')
+    }
+
+    return render_template('profile.html', profile_info=profile_info)
+
