@@ -6,6 +6,10 @@ Course: Flask Bootcamp
 Source: https://www.udemy.com/course/python-and-flask-bootcamp-create-websites-using-flask/
 Reason: Wanted to grasp all of Flask and understand the format of files(I stopped halfway through) 
 
+Blog/tutorial: Flask Mega Tutorial
+Source: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
+Reason: Something to refer to constantly. Contains all the key source code needed to make a working website with Flask
+
 Video: Python Spotify API #1 - Everything You Need To Know About OAuth2
 Source: https://www.youtube.com/watch?v=g6IAGvBZDkE&ab_channel=JasonGoodison
 Reason: He explained OAuth2 in a way that my smooth brain could understand
@@ -17,6 +21,7 @@ Reason: The article provided a basic explanation of how
 Video: Spotify API OAuth - Automate Getting User Playlists (Complete Tutorial)
 Source: https://www.youtube.com/watch?v=olY_2MW4Eik&t=438s&ab_channel=ImdadCodes
 Reason: Wanted to learn how to authenticate the user with Spotify and connect with the API to get user information
+
 
 ChatGPT prompt: how to fix "Jinja undefined error" when running Flask application
 
