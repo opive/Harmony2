@@ -124,7 +124,7 @@ def get_user():
         'email': response.json().get('email'),
         'country': response.json().get('country'),
         'followers': response.json().get('followers'),
-        'id': response.json().get('id')
+        'id': response.json().get('id'),
     }
 
     return render_template('profile.html', profile_info=profile_info)

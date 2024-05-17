@@ -28,6 +28,7 @@ def index():
             username = user_info["display_name"], 
             country = user_info["country"], 
             followers = user_info["followers"]['total'],
+            user_id = user_info['id'],
             logged = True)
 
 @core.route('about')
