@@ -14,17 +14,11 @@ Video: Python Spotify API #1 - Everything You Need To Know About OAuth2
 Source: https://www.youtube.com/watch?v=g6IAGvBZDkE&ab_channel=JasonGoodison
 Reason: He explained OAuth2 in a way that my smooth brain could understand
 
-Site: Spotify Auth Flow with Node JS + Express
-Source: https://medium.com/@stefmaxko/spotify-auth-flow-with-node-js-express-7ff13d72565a
-Reason: The article provided a basic explanation of how 
-
 Video: Spotify API OAuth - Automate Getting User Playlists (Complete Tutorial)
 Source: https://www.youtube.com/watch?v=olY_2MW4Eik&t=438s&ab_channel=ImdadCodes
-Reason: Wanted to learn how to authenticate the user with Spotify and connect with the API to get user information
-
+Reason: Wanted to learn how to authenticate the user with Spotify and connect with the API to get user information. Also where I referenced most of my code involved with getting the access, expiry refresh tokens. 
 
 ChatGPT prompt: how to fix "Jinja undefined error" when running Flask application. 
-
 
 ChatGPT prompt: MissingSchema error on Flask application how to fix
 
@@ -32,4 +26,10 @@ Question: "You have not concluded your merge.
 Source: https://stackoverflow.com/questions/11646107/you-have-not-concluded-your-merge-merge-head-exists
 Reason: My commits weren't committing
 
-ChatGPT prompt: 
+Site: Spotify API Documentation
+Source: https://developer.spotify.com/documentation/web-api
+Reason: Needed to have an overview of the type of info I can retrieve and how that would be executed
+
+
+
+
