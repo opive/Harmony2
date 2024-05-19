@@ -35,4 +35,3 @@ def index():
 def info():
     return render_template('info.html')
 
-

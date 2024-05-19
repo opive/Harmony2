@@ -1,0 +1,11 @@
+{% extends 'main_logged_in.html' %}
+{% block content %}
+
+<h2>Your Top Artists</h2>
+<ul>
+  {% for artist in top_artists %}
+    <li>{{ artist.name }} - Genres: {{ artist.genres | join(", ") }}</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

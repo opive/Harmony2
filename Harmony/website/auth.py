@@ -64,7 +64,7 @@ def callback():
             print("access_token not found in the response.")
             return jsonify({"error": "access_token not found in the response."})
 
-        return redirect('/')
+        return redirect('/profile')
 
 
     
@@ -129,3 +129,21 @@ def get_user():
 
     return render_template('profile.html', profile_info=profile_info)
 
+@auth.route('/artists')
+def artists():
+    if 'access_token' not in session:
+        return redirect('/login')
+
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh-token')
+
+    headers = {
+        'Authorization': f"Bearer {session['access_token']}"
+    }
+
+    response = requests.get(os.getenv("API_BASE_URL") + 'me/top/artists', headers=headers)
+    if response.status_code != 200:
+        return redirect('/login')
+
+    fav_artists = response.json()
+    return render_template('fav_artists.html', top_artists=fav_artists["items"])
