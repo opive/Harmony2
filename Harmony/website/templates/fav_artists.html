@@ -1,6 +1,6 @@
 {% extends 'main_logged_in.html' %}
 {% block content %}
-<h2>Your Top Artists</h2>
+<!-- <h2>Your Top Artists</h2>
 <ul>
   {% for artist in top_artists %}
     <li>
@@ -10,8 +10,27 @@
   {% else %}
     <li>No artists found.</li>
   {% endfor %}
-</ul>
+</ul> -->
 
-<h3>Debug Info:</h3>
-<pre>{{ top_artists | tojson }}</pre>  <!-- Add this line to print the JSON data -->
+<h1>Your Top 10 Artists</h1>
+<h1> </h1>
+
+<div class="row">
+  {% for artist in top_artists %}
+    <div class="col-md-4">
+      <div class="card mb-4" style="width: 18rem;">
+        <img src="{{ artist.images[0].url }}" class="card-img-top" alt="{{ artist.name }}">
+        <div class="card-body">
+          <h5 class="card-title">{{ artist.name }}</h5>
+          <p class="card-text">{{ artist.genres | join(', ') }}</p>
+          <p class="card-text">Popularity: {{ artist.popularity }} / 100</p>
+          <a href="{{ artist.external_urls.spotify }}" class="btn btn-primary" target="_blank">Visit Artist on Spotify</a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
 {% endblock %}
+
+
