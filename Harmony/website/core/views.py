@@ -34,4 +34,3 @@ def index():
 @core.route('about')
 def info():
     return render_template('info.html')
-

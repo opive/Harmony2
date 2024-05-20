@@ -32,7 +32,6 @@ app.register_blueprint(core, url_prefix='/')
 app.register_blueprint(error_pages)
 app.register_blueprint(auth, url_prefix='/')
 
-
 from .import models
 
 

@@ -14,7 +14,7 @@ def login():
     params = {
         'client_id' : os.getenv('CLIENT_ID'),
         'response_type' : 'code',
-        'scope' : 'user-read-private user-read-email playlist-read-private',
+        'scope': 'user-read-private user-read-email playlist-read-private user-top-read',  # Ensure this scope is allowed
         'redirect_uri' : os.getenv('REDIRECT_URI'),
         'show_dialog' : False
 
@@ -27,44 +27,34 @@ def login():
 #Make request to Spotify API
 
 @auth.route('/callback/')
-def callback(): 
+def callback():
     if 'error' in request.args:
-        print("you're cooked")
         return jsonify({"error": request.args['error']})
-    # returns error if something is wrong with the user's account
 
-    if 'code' in request.args: # build a request that contains data to send
-        print("you cooked")
+    if 'code' in request.args:
         req = {
             'code': request.args['code'],
             'grant_type': 'authorization_code',
-            'redirect_uri': os.getenv("REDIRECT_URI"),
-            'client_id': os.getenv("CLIENT_ID"),
-            'client_secret': os.getenv("CLIENT_SECRET"),
+            'redirect_uri': os.getenv('REDIRECT_URI'),
+            'client_id': os.getenv('CLIENT_ID'),
+            'client_secret': os.getenv('CLIENT_SECRET')
         }
         token_url = os.getenv("TOKEN_URL")
-        print(f"Requesting token with data: {req}")
-        response = requests.post(token_url, data=req) # send token url for access token
-        
-        try:
-            response.raise_for_status()  # Raise an HTTPError for bad responses
-        except requests.exceptions.HTTPError as e:
-            print(f"HTTPError: {e.response.status_code} - {e.response.reason}")
-            print(f"Response content: {e.response.text}")
+        response = requests.post(token_url, data=req)
+        if response.status_code != 200:
+            print("Failed to fetch access token")
             return jsonify({"error": "Failed to fetch access token."})
-        
+
         token_info = response.json()
-        print(f"Received token info: {token_info}")
+        print("Token Info:", token_info)
+        session['access_token'] = token_info.get('access_token')
+        session['refresh_token'] = token_info.get('refresh_token')
+        session['expires_at'] = datetime.now().timestamp() + token_info.get('expires_in', 3600)
 
-        if 'access_token' in token_info:
-            session['access_token'] = token_info['access_token']
-            session['refresh_token'] = token_info['refresh_token']
-            session['expires_at'] = datetime.now().timestamp() + token_info['expires_in']
-        else:
-            print("access_token not found in the response.")
-            return jsonify({"error": "access_token not found in the response."})
+        # Redirect to the homepage after successful login
+        return redirect('/')
 
-        return redirect('/profile')
+    return jsonify({"error": "Invalid request. No code provided."})
 
 
     
@@ -133,17 +123,27 @@ def get_user():
 def artists():
     if 'access_token' not in session:
         return redirect('/login')
-
+    
     if datetime.now().timestamp() > session['expires_at']:
         return redirect('/refresh-token')
-
+    
     headers = {
         'Authorization': f"Bearer {session['access_token']}"
     }
 
-    response = requests.get(os.getenv("API_BASE_URL") + 'me/top/artists', headers=headers)
+    limit = 10  # Limit to 10 artists
+    response = requests.get(os.getenv("API_BASE_URL") + f'me/top/artists?limit={limit}', headers=headers)
+    
+    print(f"Request URL: {os.getenv('API_BASE_URL')}me/top/artists?limit={limit}")
+    print(f"Response Status Code: {response.status_code}")
+    print(f"Response JSON: {response.json()}")  # Debugging statement
+    
     if response.status_code != 200:
+        print(f"Error fetching top artists: {response.json()}")  # Additional error logging
         return redirect('/login')
 
     fav_artists = response.json()
+    print("Favorite Artists:", fav_artists)  # Debugging statement
+
+    print("Rendering fav_artists.html with:", fav_artists["items"])
     return render_template('fav_artists.html', top_artists=fav_artists["items"])
