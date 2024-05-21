@@ -4,7 +4,11 @@ Reason: Wanted a quick intro to what I was getting myself into
 
 Course: Flask Bootcamp
 Source: https://www.udemy.com/course/python-and-flask-bootcamp-create-websites-using-flask/
-Reason: Wanted to grasp all of Flask and understand the format of files(I stopped halfway through) 
+Reason: Wanted to grasp all of Flask and understand the format(I stopped halfway through). Gave me the basics of HTML, CSS, Jinja, and Bootstrap
+
+Site: Bootstrap Docs
+Source:https://getbootstrap.com/docs/5.3/getting-started/introduction/
+Reason: Needed the URL and  the templates for various components I'd need to display information. Copy and pasted the premade formatting they made and modified it to suit my needs. 
 
 Blog/tutorial: Flask Mega Tutorial
 Source: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
@@ -30,6 +34,8 @@ Site: Spotify API Documentation
 Source: https://developer.spotify.com/documentation/web-api
 Reason: Needed to have an overview of the type of info I can retrieve and how that would be executed
 
+
+Chat GPT prompt: No info is being displayed on my website, and the whole website is blank (excluding the nav bar).  I think there is a problem with my /callback or /login function, and maybe 'session'. The moment I'm logged in, I am able to retrieve profile data.  However, I'm unable to successfully access other pieces of data when I visit another page on the website dedicated to retrieving that piece of data (eg the /artists route does not work). I'm not sure why. What is this issue and how can I fix it
 
 
 
