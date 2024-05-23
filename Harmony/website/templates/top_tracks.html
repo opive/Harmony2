@@ -1,0 +1,24 @@
+{% extends 'main_logged_in.html' %}
+{% block content %}
+
+<body>
+    <h1>Here are your top tracks so far:</h1>
+    <div class="row">
+        {% for track in top_tracks %}
+          <div class="col-md-4">
+            <div class="card mb-4" style="width: 18rem;">
+              <img src="{{ track.album.images[0].url }}" class="card-img-top" alt="{{ track.name }}">
+              <div class="card-body">
+                <h5 class="card-title">{{ track.name }}</h5>
+                <p class="card-text">Album: {{ track.album.name }}</p>
+                <p class="card-text">Artist: {{ track.artists[0].name }}</p>
+                <p class="card-text">Popularity: {{ track.popularity }} / 100</p>
+                <a href="{{ track.external_urls.spotify }}" class="btn btn-primary" target="_blank">Listen on Spotify</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+</body>
+
+{% endblock %}
