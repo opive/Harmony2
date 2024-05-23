@@ -1,0 +1,23 @@
+{% extends 'main_logged_in.html' %}
+{% block content %}
+
+<body>
+    <h1>Based on your music taste, we think you might like these artists</h1>
+    <div class="row">
+        {% for artist in related_artists %}
+          <div class="col-md-4">
+            <div class="card mb-4" style="width: 18rem;">
+              <img src="{{ artist.images[0].url }}" class="card-img-top" alt="{{ artist.name }}">
+              <div class="card-body">
+                <h5 class="card-title">{{ artist.name }}</h5>
+                <p class="card-text">{{ artist.genres | join(', ') }}</p>
+                <p class="card-text">Popularity: {{ artist.popularity }} / 100</p>
+                <a href="{{ artist.external_urls.spotify }}" class="btn btn-primary" target="_blank">Visit Artist on Spotify</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+</body>
+
+{% endblock %}

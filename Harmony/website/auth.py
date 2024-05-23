@@ -14,7 +14,7 @@ def login():
     params = {
         'client_id' : os.getenv('CLIENT_ID'),
         'response_type' : 'code',
-        'scope': 'user-read-private user-read-email playlist-read-private user-top-read',  # Ensure this scope is allowed
+        'scope': 'user-read-private user-read-email playlist-read-private user-top-read playlist-modify-public',  # Ensure this scope is allowed
         'redirect_uri' : os.getenv('REDIRECT_URI'),
         'show_dialog' : False
 
@@ -171,6 +171,34 @@ def toptracks():
 
     print("Rendering top_tracks.html with:", top_tracks["items"])
     return render_template('top_tracks.html', top_tracks = top_tracks["items"])
+
+@auth.route('/relatedartists')
+def get_related_artists():
+    if 'access_token' not in session:
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh-token')
+    
+    headers = {
+        'Authorization': f"Bearer {session['access_token']}"
+    }
+    limit = 10
+    top_artists_response = requests.get(os.getenv("API_BASE_URL") + f'me/top/artists?limit={limit}', headers=headers)
+    if top_artists_response.status_code != 200:
+        print(f"Error fetching top artists: {top_artists_response.json()}")
+        return redirect('/login')
+
+    top_artists = top_artists_response.json()["items"]
+    
+    related_artists = []
+    for artist in top_artists:
+        artist_id = artist['id']
+        response = requests.get(os.getenv("API_BASE_URL") + f'artists/{artist_id}/related-artists', headers=headers)
+        if response.status_code == 200:
+            related_artists.extend(response.json()["artists"])
+
+    return render_template('related_artists.html', related_artists=related_artists)
 
 
 
