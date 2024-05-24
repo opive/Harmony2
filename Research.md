@@ -37,5 +37,8 @@ Reason: Needed to have an overview of the type of info I can retrieve and how th
 
 Chat GPT prompt: No info is being displayed on my website, and the whole website is blank (excluding the nav bar).  I think there is a problem with my /callback or /login function, and maybe 'session'. The moment I'm logged in, I am able to retrieve profile data.  However, I'm unable to successfully access other pieces of data when I visit another page on the website dedicated to retrieving that piece of data (eg the /artists route does not work). I'm not sure why. What is this issue and how can I fix it
 
+Chat GPT prompt: using bootstrap, how can I create spaces between text and other elements
+
+
 
 
