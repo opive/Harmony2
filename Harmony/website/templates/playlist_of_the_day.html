@@ -1,0 +1,18 @@
+{% extends 'main_logged_in.html' %}
+{% block content %}
+
+<body>
+  <h1 class="mt-3 py-5 display-4">How's the weather? Feeling happy? Sad? Tough breakup?</h1>
+  <h4 class="mt-2 py-5">Find your perfect playlist for today.</h4>
+
+  <div class="text-center">
+    <form action="/todays_playlist" method="post">
+        <input type="text" id="CityName" name="CityName" placeholder="City">
+        <input type="text" id="StateName" name="StateName" placeholder="State, eg. ON">
+        <input type="text" id="CountryName" name="CountryName" placeholder="Country, eg Canada"> 
+        <button type="submit">Find</button>
+    </form>
+  </div>
+</body>
+
+{% endblock %}
