@@ -38,7 +38,18 @@ Chat GPT prompt: No info is being displayed on my website, and the whole website
 
 Chat GPT prompt: using bootstrap, how can I create spaces between text and other elements
 
-Chat GPT prompt: what's wrong with my code?? *insert code at the time*
+Chat GPT prompt: what's wrong with my code?? *insert code at the time* x 6
+
+Video: Build YOUR OWN Weather App in Python with Flask (COMPLETE Beginner Tutorial)
+Source: https://www.youtube.com/watch?v=JCD7YdOSsWI&ab_channel=datagy
+Reason: Needed a guide through using OpenWeather API and Flask
+
+Site: Open Weather API documentation
+Source: https://openweathermap.org/api/one-call-3
+Reason: Provides the URLs and API key for me to use OpenWeather's API 
+
+
+
 
 
 
