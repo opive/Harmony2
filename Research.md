@@ -46,7 +46,7 @@ Reason: Needed a guide through using OpenWeather API and Flask
 
 Site: Open Weather API documentation
 Source: https://openweathermap.org/api/one-call-3
-Reason: Provides the URLs and API key for me to use OpenWeather's API 
+Reason: Provides the URLs and API key for me to use OpenWeather's API. Teaches me a bit more a Bootstrap too
 
 
 
