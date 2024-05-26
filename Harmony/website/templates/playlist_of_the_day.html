@@ -6,12 +6,22 @@
   <h4 class="mt-2 py-5">Find your perfect playlist for today.</h4>
 
   <div class="text-center">
+    <h5 class="mt-1 py-3">What's the weather like in your city?</h5>
     <form action="/todays_playlist" method="post">
         <input type="text" id="CityName" name="CityName" placeholder="City">
         <input type="text" id="StateName" name="StateName" placeholder="State, eg. ON">
         <input type="text" id="CountryName" name="CountryName" placeholder="Country, eg Canada"> 
         <button type="submit">Find</button>
     </form>
+    
+    {% if data %}
+    <h5 class="mt-3 py-5">
+      {{ data.description }}, {{ data.temp }} C°
+    </h5>
+    <img src="http://openweathermap.org/img/wn/{{ data.icon }}@2x.png" alt="Weather icon">
+    {% endif %}
+  </div>
+
   </div>
 </body>
 
