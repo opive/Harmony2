@@ -14,7 +14,7 @@ def login():
     params = {
         'client_id' : os.getenv('CLIENT_ID'),
         'response_type' : 'code',
-        'scope': 'user-read-private user-read-email playlist-read-private user-top-read playlist-modify-public',  # Ensure this scope is allowed
+        'scope': 'user-read-private user-read-email playlist-read-private user-top-read playlist-modify-public playlist-read-private ',  # Ensure this scope is allowed
         'redirect_uri' : os.getenv('REDIRECT_URI'),
         'show_dialog' : False
 

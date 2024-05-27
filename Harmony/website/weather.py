@@ -1,8 +1,10 @@
 import requests
-from flask import Flask, Blueprint, render_template, request
+from flask import Flask, Blueprint, render_template, request, redirect, session
 from dotenv import load_dotenv
 import os
 from dataclasses import dataclass
+from datetime import datetime
+
 
 load_dotenv()  # Load environment variables
 weather_api_key = os.getenv('WEATHER_API_KEY')
@@ -48,7 +50,34 @@ def today():
         lat, lon = get_lat_lon(city, state, country, weather_api_key)
         if lat and lon:
             weather_data = get_weather(lat, lon, weather_api_key)
-    return render_template('playlist_of_the_day.html', data=weather_data)
+            if weather_data: 
+                playlist = get_todays_playlist(weather_data.description)
+    return render_template('playlist_of_the_day.html', data=weather_data, playlist = playlist)
+
+def get_todays_playlist(description):
+    if 'access_token' not in session:
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh-token')
+    
+    headers = { #headers include the access token for spotify to identify
+        'Authorization' : f"Bearer {session['access_token']}"
+
+    }
+
+moods = {
+    'clear sky' : 'happy',
+    'few clouds' : 'relax',
+    'scattered clouds': 'chill',
+    'broken clouds': 'melancholy',
+    'shower rain' : 'deep',
+    'rain': 'sad',
+    'thunderstorm' : 'intense',
+    'snow': 'cozy',
+    'mist' : 'calm'
+#maps a weather condition to an emotion 
+}
 
 if __name__ == '__main__':
     lat, lon = get_lat_lon('Toronto', 'ON', 'CA', weather_api_key)

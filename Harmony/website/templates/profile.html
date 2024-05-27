@@ -1,24 +1,24 @@
 {% extends 'main_logged_in.html' %}
 {% block content %}
 
-<!-- <body>
-    <h1>Welcome, {{ profile_info.display_name }}</h1>
-    <p></p>
-    <p>Email: {{ profile_info.email }}</p>
-    <p>Country: {{ profile_info.country }}</p>
-    <p>Followers: {{ profile_info.followers }}</p>
-    <p>User Id: {{profile_info.id}}</p> -->
-    
-    <div class="jumbotron">
+<div class="container mt-5" >
+  <div class="row">
+    <div class="col-md-4 text-center">
+      {% if profile_info.images %}
+        <img src="{{ profile_info.images[0].url }}" alt="Profile Picture" class="img-fluid rounded-circle border border-light shadow" style="width: 150px; height: 150px;">
+      {% endif %}
+    </div>
+    <div class="col-md-8">
+      <div class="jumbotron style=" background-color: #edf8ff; text-dark shadow>
         <h1 class="display-4">Welcome, {{ profile_info.display_name }}</h1>
-        <p class="lead">User Id: {{profile_info.id}} </p>
-        <p class="lead">{{ profile_info.email }} </p>
+        <p class="lead">User Id: {{ profile_info.id }}</p>
+        <p class="lead">{{ profile_info.email }}</p>
         <hr class="my-4">
         <p>Country: {{ profile_info.country }}</p>
-        <p>Followers: {{ profile_info.followers.total}}</p>
+        <p>Followers: {{ profile_info.followers.total }}</p>
+      </div>
     </div>
+  </div>
+</div>
 
-
-</body>
-
-	{% endblock %}
+{% endblock %}
