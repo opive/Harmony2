@@ -54,7 +54,7 @@ def today():
                 playlist = get_todays_playlist(weather_data.description)
     return render_template('playlist_of_the_day.html', data=weather_data, playlist = playlist)
 
-def get_todays_playlist(description):
+def get_track_ids(description):
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -66,21 +66,113 @@ def get_todays_playlist(description):
 
     }
 
-moods = {
-    'clear sky' : 'happy',
-    'few clouds' : 'relax',
-    'scattered clouds': 'chill',
-    'broken clouds': 'melancholy',
-    'shower rain' : 'deep',
-    'rain': 'sad',
-    'thunderstorm' : 'intense',
-    'snow': 'cozy',
-    'mist' : 'calm'
-#maps a weather condition to an emotion 
+    limit = 22
+    response = requests.get(os.getenv("API_BASE_URL") + f'/me/playlists', headers=headers)
+    if response.status_code == 200:
+        playlists = response.json().get('items', []) #json response returns a dictionary. If the key 'items' is not in the dictionary, 
+        # it returns an empty list ([].
+        track_ids = []
+        for playlist in playlists:
+            playlist_id = playlist['id']
+            response = requests.get(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers)
+            if response.status_code == 200:
+                tracks = response.json().get('items', [])
+                for track in tracks:
+                    track_ids.append(track['track']['id'])
+    
+    return track_ids
+
+mood_characteristics = { #uses Spotify's parameters for songs to further narrow down a song to a mood
+    'happy': {
+        'min_energy': 0.7,
+        'target_danceability': 0.8,
+        'min_tempo': 100
+    },
+    'relax': {
+        'min_energy': 0.4,
+        'target_danceability': 0.5,
+        'min_tempo': 70
+    },
+    'chill': {
+        'min_energy': 0.3,
+        'target_danceability': 0.6,
+        'min_tempo': 70
+    },
+    'melancholy': {
+        'min_energy': 0.3,
+        'target_danceability': 0.4,
+        'max_tempo': 80
+    },
+    'deep': {
+        'min_energy': 0.6,
+        'target_danceability': 0.7,
+        'max_tempo': 80
+    },
+    'sad': {
+        'min_energy': 0.2,
+        'target_danceability': 0.3,
+        'max_tempo': 60
+    },
+    'intense': {
+        'min_energy': 0.8,
+        'target_danceability': 0.7,
+        'min_tempo': 120
+    },
+    'cozy': {
+        'min_energy': 0.5,
+        'target_danceability': 0.6,
+        'max_tempo': 80
+    },
+    'calm': {
+        'min_energy': 0.3,
+        'target_danceability': 0.4,
+        'max_tempo': 50
+    }
 }
+
+def analyze_tracks(description, track_ids):
+    if 'access_token' not in session:
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh-token')
+    
+    headers = {
+        'Authorization': f"Bearer {session['access_token']}"
+    }
+    moods = { #maps a mood to a one of Open Weather's weather condtions
+        'clear sky': 'happy',
+        'few clouds': 'relax',
+        'scattered clouds': 'chill',
+        'broken clouds': 'melancholy',
+        'shower rain': 'deep',
+        'rain': 'sad',
+        'thunderstorm': 'intense',
+        'snow': 'cozy',
+        'mist': 'calm'
+    }
+
+
+    mood = moods.get(description, 'mood')
+    mood_params = mood_characteristics.get(mood, {})
+    
+    seed_tracks_param = ','.join(seed_tracks[:5])  # Spotify allows a maximum of 5 seed tracks
+
+    query_params = {
+        'seed_tracks': seed_tracks_param,
+        'limit': 20,
+        **mood_params  # Unpack the mood parameters into the query parameters
+    }
+
+    response = requests.get(
+        "https://api.spotify.com/v1/recommendations",
+        headers=headers,
+        params=query_params
+
 
 if __name__ == '__main__':
     lat, lon = get_lat_lon('Toronto', 'ON', 'CA', weather_api_key)
     print(get_weather(lat, lon, weather_api_key))
 
-print(get_lat_lon('Toronto', 'ON', 'CA', weather_api_key))
+
+

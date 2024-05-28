@@ -32,7 +32,7 @@ Reason: My commits weren't committing
 
 Site: Spotify API Documentation
 Source: https://developer.spotify.com/documentation/web-api
-Reason: Needed to have an overview of the type of info I can retrieve and how that would be executed
+Reason: Needed to have an overview of the type of info I can retrieve and how that would be executed. Contains the endpoints and the URLs needed to achieve the desired result
 
 Chat GPT prompt: No info is being displayed on my website, and the whole website is blank (excluding the nav bar).  I think there is a problem with my /callback or /login function, and maybe 'session'. The moment I'm logged in, I am able to retrieve profile data.  However, I'm unable to successfully access other pieces of data when I visit another page on the website dedicated to retrieving that piece of data (eg the /artists route does not work). I'm not sure why. What is this issue and how can I fix it
 
@@ -47,6 +47,10 @@ Reason: Needed a guide through using OpenWeather API and Flask
 Site: Open Weather API documentation
 Source: https://openweathermap.org/api/one-call-3
 Reason: Provides the URLs and API key for me to use OpenWeather's API. Teaches me a bit more a Bootstrap too
+
+ChatGPT prompt: How can I look through the users playlists, find tracks that pertain to the moods, perhaps find other songs similar to the genres that they like that fit the mood, and create a new playlist with all these tracks? All based on the weather of course. What are steps I can take to achieve this? 
+
+
 
 
 

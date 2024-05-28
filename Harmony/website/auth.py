@@ -14,11 +14,11 @@ def login():
     params = {
         'client_id' : os.getenv('CLIENT_ID'),
         'response_type' : 'code',
-        'scope': 'user-read-private user-read-email playlist-read-private user-top-read playlist-modify-public playlist-read-private ',  # Ensure this scope is allowed
+        'scope': 'user-read-private user-read-email playlist-read-private user-top-read playlist-modify-public playlist-read-private ',  
         'redirect_uri' : os.getenv('REDIRECT_URI'),
         'show_dialog' : False
 
-        #Access token is given once they login, so they don't have to log in everytime
+        #Access token is given once they log in, so they don't have to log in everytime
         }
     auth_url = f"{os.getenv('AUTH_URL')}?{urllib.parse.urlencode(params)}"
     #Get request must be made to an authorization URL, params must be parsed. URLib encodes the params 
@@ -199,6 +199,3 @@ def get_related_artists():
             related_artists.extend(response.json()["artists"])
 
     return render_template('related_artists.html', related_artists=related_artists)
-
-
-
