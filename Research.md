@@ -38,7 +38,7 @@ Chat GPT prompt: No info is being displayed on my website, and the whole website
 
 Chat GPT prompt: using bootstrap, how can I create spaces between text and other elements
 
-Chat GPT prompt: what's wrong with my code?? *insert code at the time* x 6
+Chat GPT prompt: what's wrong with my code?? *insert code at the time* x 238298391891
 
 Video: Build YOUR OWN Weather App in Python with Flask (COMPLETE Beginner Tutorial)
 Source: https://www.youtube.com/watch?v=JCD7YdOSsWI&ab_channel=datagy
@@ -50,11 +50,9 @@ Reason: Provides the URLs and API key for me to use OpenWeather's API. Teaches m
 
 ChatGPT prompt: How can I look through the users playlists, find tracks that pertain to the moods, perhaps find other songs similar to the genres that they like that fit the mood, and create a new playlist with all these tracks? All based on the weather of course. What are steps I can take to achieve this? 
 
+ChatGPT prompt: I want to use the top tracks as a reference to the GENRES they like. After knowing their preferred genres, I can then find tracks from within their playlists that match the mood characteristics that match BOTH the genre and the mood of the day. I can also get recommendations of other tracks with the SAME GENRE and MOOD.
 
 
-
-
-
-
+ChatGPT prompt: How can I iterate over track ids in chunks of 100 
 
 
