@@ -55,4 +55,9 @@ ChatGPT prompt: I want to use the top tracks as a reference to the GENRES they l
 
 ChatGPT prompt: How can I iterate over track ids in chunks of 100 
 
+Website: Python request status codes 
+Source: https://www.geeksforgeeks.orgresponse-status_code-python-requests/
+Reason: It was being used in a lot of resources I consulted and I got curious
 
+Doc Page: Spotify URIs
+Source: https://developer.spotify.com/documentation/web-api/concepts/spotify-uris-ids

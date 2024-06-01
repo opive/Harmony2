@@ -275,12 +275,23 @@ def create_playlist(user_id, track_ids, ):
         'public': True
     }
     response = requests.get("https://api.spotify.com/v1/recommendations", headers=headers, req_body = req_body)
-    playlist_id = response.json().get('id')
+    if response.status_code == 201:
+        playlist_id = response.json().get('id')
+        track_uris = []
+        for track_id in track_ids:
+            track_uri = f'spotify:track:{track_id}'
+            track_uris.append(track_uri)
+        
+        response_tracks = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers, json={'uris': track_uris})
+        if response_tracks.status_code == 201:
+                return playlist_id
 
-    track_uris = [f'spotify:track:{track_id}' for track_id in track_ids]
+        
+        
 
 
-def get_todays_playlist(description):
+
+def get_playlist(description):
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -310,9 +321,16 @@ def get_todays_playlist(description):
     return playlist_id
 
 
-def create_playlis
-
+def return_playlist():
+    if 'access_token' not in session:
+        return redirect('/login')
     
+    description = request.form.get('description')
+    
+    playlist_id = get_playlist(description)
+    return jsonify({'playlist_id': playlist_id}), 200
+
+
 
 
 
