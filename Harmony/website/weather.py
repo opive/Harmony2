@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 import os
 from dataclasses import dataclass
 from datetime import datetime
+import logging
 
-
-load_dotenv()  # Load environment variables
+load_dotenv()  # load environment variables
 weather_api_key = os.getenv('WEATHER_API_KEY')
 
 weather = Blueprint('weather', __name__)
@@ -40,8 +40,7 @@ def get_weather(lat, lon, API_key):
         return weather_data
     return None
 
-
-moods = { #maps a mood to a one of Open Weather's weather condtions
+moods = {
     'clear sky': 'happy',
     'few clouds': 'relax',
     'scattered clouds': 'chill',
@@ -50,10 +49,11 @@ moods = { #maps a mood to a one of Open Weather's weather condtions
     'rain': 'sad',
     'thunderstorm': 'intense',
     'snow': 'cozy',
-    'mist': 'calm'
-    }
+    'mist': 'calm',
+    'overcast clouds': 'melancholy'
+}
 
-mood_characteristics = { #uses Spotify's parameters for songs to further narrow down a song to a mood
+mood_characteristics = {
     'happy': {
         'min_energy': 0.7,
         'target_danceability': 0.8,
@@ -76,7 +76,7 @@ mood_characteristics = { #uses Spotify's parameters for songs to further narrow 
     },
     'melancholy': {
         'min_energy': 0.3,
-        'target_danceability': 0.4,
+        'target_danceability': 0.3,
         'max_tempo': 80,
         'min_valence': 0.1,
         'max_valence': 0.4
@@ -115,6 +115,13 @@ mood_characteristics = { #uses Spotify's parameters for songs to further narrow 
         'max_tempo': 50,
         'min_valence': 0.3,
         'max_valence': 0.6
+    },
+    'overcast clouds': {
+        'min_energy': 0.3,
+        'target_danceability': 0.3,
+        'max_tempo': 80,
+        'min_valence': 0.1,
+        'max_valence': 0.4
     }
 }
 
@@ -148,18 +155,17 @@ def get_top_genres():
         top_tracks = response.json().get('items')
 
         track_ids = []
-        for track in top_tracks:
-            track_ids.append(track['id'])
-
         genres = set()
         for track in top_tracks:
+            track_ids.append(track['id'])
             for artist in track['artists']:
                 artist_response = requests.get(f"https://api.spotify.com/v1/artists/{artist['id']}", headers=headers)
                 if artist_response.status_code == 200:
-                    genres.update(artist_response.json().get('genres'))
+                    artist_genres = artist_response.json().get('genres', [])
+                    genres.update(artist_genres)
 
         return track_ids, list(genres)
-
+    return [], []
 
 def get_user_playlists():
     if 'access_token' not in session:
@@ -175,9 +181,7 @@ def get_user_playlists():
     response = requests.get("https://api.spotify.com/v1/me/playlists", headers=headers)
     if response.status_code == 200:
         playlists = response.json().get('items', [])
-        playlist_ids = []
-        for playlist in playlists:
-            playlist_ids.append(playlist['id'])
+        playlist_ids = [playlist['id'] for playlist in playlists]
         return playlist_ids
 
 def get_track_ids(playlist_ids):
@@ -187,9 +191,8 @@ def get_track_ids(playlist_ids):
     if datetime.now().timestamp() > session['expires_at']:
         return redirect('/refresh-token')
     
-    headers = { #headers include the access token for spotify to identify
+    headers = { 
         'Authorization' : f"Bearer {session['access_token']}"
-
     }
     track_ids = []
     for playlist_id in playlist_ids:
@@ -201,7 +204,7 @@ def get_track_ids(playlist_ids):
                     track_ids.append(track['track']['id'])
     return track_ids
 
-def audio_features(track_ids): 
+def fetch_audio_features(track_ids): 
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -217,7 +220,7 @@ def audio_features(track_ids):
         response = requests.get(f'https://api.spotify.com/v1/audio-features?ids={ids}', headers=headers)
         if response.status_code == 200:
             audio_features.extend(response.json().get('audio_features', []))
-        return audio_features
+    return audio_features
 
 def filter_tracks(audio_features, mood):
     mood_params = mood_characteristics.get(mood, {})
@@ -230,9 +233,7 @@ def filter_tracks(audio_features, mood):
             filtered_track_ids.append(track['id'])
     return filtered_track_ids
 
-
 def get_recommendations(filtered_tracks, genres, mood_params):
-
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -242,10 +243,10 @@ def get_recommendations(filtered_tracks, genres, mood_params):
     headers = {
         'Authorization': f"Bearer {session['access_token']}"
     }
-    seed_tracks_param = ','.join(filtered_tracks[:5])  # Spotify allows a maximum of 5 seed tracks
-    genre_param = ','.join(genres[:5])  # Limit genres to 5
+    seed_tracks_param = ','.join(filtered_tracks[:5])  # spotify allows a maximum of 5 seed tracks
+    genre_param = ','.join(genres[:5])  # limit genres to 5
     
-    query_params = { #dictionary of query parameters for the API request, 
+    query_params = { 
         'seed_tracks': seed_tracks_param,
         'seed_genres': genre_param,
         'limit': 20, 
@@ -257,8 +258,7 @@ def get_recommendations(filtered_tracks, genres, mood_params):
         return response.json().get('tracks', [])
     return []
 
-
-def create_playlist(user_id, track_ids, ):
+def create_playlist(user_id, track_ids, description):
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -270,67 +270,86 @@ def create_playlist(user_id, track_ids, ):
     }
 
     req_body = {
-        'name' : "Playlist of the day",
-        'description': 'This was created by Harmony based on the weather in your area',
+        'name': "Playlist of the day",
+        'description': description,
         'public': True
     }
-    response = requests.get("https://api.spotify.com/v1/recommendations", headers=headers, req_body = req_body)
+    response = requests.post(f"https://api.spotify.com/v1/users/{user_id}/playlists", headers=headers, json=req_body)
+    
     if response.status_code == 201:
         playlist_id = response.json().get('id')
-        track_uris = []
-        for track_id in track_ids:
-            track_uri = f'spotify:track:{track_id}'
-            track_uris.append(track_uri)
+        track_uris = [f'spotify:track:{track_id}' for track_id in track_ids]
         
-        response_tracks = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers, json={'uris': track_uris})
-        if response_tracks.status_code == 201:
-                return playlist_id
-
+        # Add tracks in batches of 100
+        for i in range(0, len(track_uris), 100):
+            batch = track_uris[i:i+100]
+            response_tracks = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers, json={'uris': batch})
+            
+            if response_tracks.status_code != 201 and response_tracks.status_code != 200:
+                logging.error(f"Error adding tracks to playlist: {response_tracks.status_code} - {response_tracks.text}")
+                return None
         
-        
-
-
+        return playlist_id
+    else:
+        logging.error(f"Error creating playlist: {response.status_code} - {response.text}")
+    return None
 
 def get_playlist(description):
     if 'access_token' not in session:
-        return redirect('/login')
+        return None
     
     if datetime.now().timestamp() > session['expires_at']:
-        return redirect('/refresh-token')
+        return None
     
     headers = {
         'Authorization': f"Bearer {session['access_token']}"
     }
 
-    genres = get_top_genres()
+    track_ids, genres = get_top_genres()
     mood = moods.get(description)
     mood_params = mood_characteristics.get(mood)
 
     playlist_ids = get_user_playlists()
     all_track_ids = get_track_ids(playlist_ids)
-    audio_features = audio_features(all_track_ids)
-    filtered_tracks = filter_tracks(audio_features, mood, genres)
+    audio_features_data = fetch_audio_features(all_track_ids)
+    filtered_tracks = filter_tracks(audio_features_data, mood)
     recommended_tracks = get_recommendations(filtered_tracks, genres, mood_params)
 
     combined_track_ids = filtered_tracks + [track['id'] for track in recommended_tracks]
 
     user_info_response = requests.get("https://api.spotify.com/v1/me", headers=headers)
     user_id = user_info_response.json().get('id')
-    playlist_id = create_playlist(user_id, 'Today\'s Playlist', 'A custom playlist based on weather and your taste.', combined_track_ids)
+
+    playlist_id = create_playlist(user_id, combined_track_ids, "A custom playlist based on weather and your taste.")
     
     return playlist_id
 
+@weather.route('/todays_playlist', methods=['GET', 'POST'])
+def today():
+    weather_data = None
+    todays_playlist = None
 
-def return_playlist():
-    if 'access_token' not in session:
-        return redirect('/login')
+    if request.method == 'POST':
+        city = request.form.get("CityName")
+        state = request.form.get("StateName")
+        country = request.form.get("CountryName")
+
+        if not city or not state or not country: 
+            return jsonify({'error': 'none provided'}), 400
+
+        lat, lon = get_lat_lon(city, state, country, weather_api_key)
+        if not lat or not lon: 
+            return jsonify({'error': 'unable to get lon and lat'}), 400
+        
+        weather_data = get_weather(lat, lon, weather_api_key)
+        if not weather_data:
+            return jsonify({'error': 'unable to get weather data'}), 400
+        
+        if weather_data and weather_data.description:
+            todays_playlist = get_playlist(weather_data.description)
+            if todays_playlist is None:
+                return jsonify({"error": "unable to create playlist"}), 400
+        else:
+            return jsonify({"error": "unable to get weather data"}), 400
     
-    description = request.form.get('description')
-    
-    playlist_id = get_playlist(description)
-    return jsonify({'playlist_id': playlist_id}), 200
-
-
-
-
-
+    return render_template('playlist_of_the_day.html', data=weather_data, todays_playlist=todays_playlist)

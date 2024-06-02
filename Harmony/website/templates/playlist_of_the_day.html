@@ -20,9 +20,13 @@
     </h5>
     <img src="http://openweathermap.org/img/wn/{{ data.icon }}@2x.png" alt="Weather icon">
     {% endif %}
-  </div>aw
-
   </div>
+  {% if todays_playlist %}
+    <h2> Today's playlist </h2>
+    <p>Playlist ID: {{ todays_playlist }}</p>
+
+  {% endif %}
+
 </body>
 
 {% endblock %}

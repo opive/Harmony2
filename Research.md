@@ -61,3 +61,7 @@ Reason: It was being used in a lot of resources I consulted and I got curious
 
 Doc Page: Spotify URIs
 Source: https://developer.spotify.com/documentation/web-api/concepts/spotify-uris-ids
+
+Website: GET vs POST - W3Schools
+Source: https://www.w3schools.com/tags/ref_httpmethods.asp
+Reason: Every API function requires one of the two key words
