@@ -124,7 +124,7 @@ mood_characteristics = {
         'max_valence': 0.4
     }
 }
-
+max_tracks = 50 
 def get_user_id(): 
     if 'access_token' not in session:
         return redirect('/login')
@@ -215,8 +215,8 @@ def fetch_audio_features(track_ids):
         'Authorization': f"Bearer {session['access_token']}"
     }
     audio_features = []
-    for i in range(0, len(track_ids), 100):  # Spotify API limit is 100 tracks per request, iterates over the track_ids list in chunks of 100 at a time
-        ids = ','.join(track_ids[i:i+100])
+    for i in range(0, len(track_ids), 100):  # spotify API limit is 100 tracks per request, iterates over the track_ids list in chunks of 100 at a time
+        ids = ','.join(track_ids[i:i+100]) #gets a sublist of up to 100 track ids starting from i
         response = requests.get(f'https://api.spotify.com/v1/audio-features?ids={ids}', headers=headers)
         if response.status_code == 200:
             audio_features.extend(response.json().get('audio_features', []))
@@ -228,8 +228,8 @@ def filter_tracks(audio_features, mood):
     for track in audio_features:
         if track and (mood_params.get('min_energy', 0) <= track['energy'] <= mood_params.get('max_energy', 1)) and \
            (mood_params.get('target_danceability', 0) - 0.1 <= track['danceability'] <= mood_params.get('target_danceability', 1) + 0.1) and \
-           (mood_params.get('min_tempo', 0) <= track['tempo'] <= mood_params.get('max_tempo', 500)) and \
-           (mood_params.get('min_valence', 0) <= track['valence'] <= mood_params.get('max_valence', 1)):
+           (mood_params.get('min_tempo') <= track['tempo'] <= mood_params.get('max_tempo', 500)) and \
+           (mood_params.get('min_valence') <= track['valence'] <= mood_params.get('max_valence', 1)):
             filtered_track_ids.append(track['id'])
     return filtered_track_ids
 
@@ -279,8 +279,7 @@ def create_playlist(user_id, track_ids, description):
     if response.status_code == 201:
         playlist_id = response.json().get('id')
         track_uris = [f'spotify:track:{track_id}' for track_id in track_ids]
-        
-        # Add tracks in batches of 100
+
         for i in range(0, len(track_uris), 100):
             batch = track_uris[i:i+100]
             response_tracks = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers, json={'uris': batch})
@@ -315,7 +314,11 @@ def get_playlist(description):
     filtered_tracks = filter_tracks(audio_features_data, mood)
     recommended_tracks = get_recommendations(filtered_tracks, genres, mood_params)
 
-    combined_track_ids = filtered_tracks + [track['id'] for track in recommended_tracks]
+    combined_track_ids = list(filtered_tracks)
+    for track in recommended_tracks:
+        combined_track_ids.append(track['id']) # append the id of each track to combined_track_ids
+
+    combined_track_ids = combined_track_ids[:max_tracks]
 
     user_info_response = requests.get("https://api.spotify.com/v1/me", headers=headers)
     user_id = user_info_response.json().get('id')

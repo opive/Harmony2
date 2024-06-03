@@ -65,3 +65,18 @@ Source: https://developer.spotify.com/documentation/web-api/concepts/spotify-uri
 Website: GET vs POST - W3Schools
 Source: https://www.w3schools.com/tags/ref_httpmethods.asp
 Reason: Every API function requires one of the two key words
+
+ChatGPT prompt: Webpage returns: 
+{
+  "error": "unable to create playlist"
+}
+
+why might this be
+
+
+ChatGPT prompt: Logs are returning: 
+ERROR:root:Error adding tracks to playlist: 200 - {"snapshot_id":"AAAAArOHuqiejZrJQLRcXpHgCXzVhQyF"}
+127.0.0.1 - - [02/Jun/2024 10:37:09] "POST /todays_playlist HTTP/1.1" 400 -
+INFO:werkzeug:127.0.0.1 - - [02/Jun/2024 10:37:09] "POST /todays_playlist HTTP/1.1" 400 -
+What does this mean and how to fix
+
