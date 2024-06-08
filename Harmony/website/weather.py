@@ -19,6 +19,12 @@ class WeatherData:
     temp: float
 
 def get_lat_lon(city_name, state_code, country_code, API_key):
+    '''calls the Open Weather geocoding API to get a dictionary of data
+
+    params: the user's city's name, state, country (can be name or code), API key
+
+    returns: latitude and longitude
+    '''
     response = requests.get(f'http://api.openweathermap.org/geo/1.0/direct?q={city_name},{state_code},{country_code}&appid={API_key}')
     data = response.json()
     if data:
@@ -28,6 +34,13 @@ def get_lat_lon(city_name, state_code, country_code, API_key):
     return None, None
 
 def get_weather(lat, lon, API_key):
+    '''calls the OpenWeather API to get the user's weather 
+
+    params: the latititude and longitude, API key
+
+    returns: weather details
+    
+    '''
     response = requests.get(f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_key}&units=metric')
     data = response.json()
     if 'weather' in data and 'main' in data:
@@ -40,7 +53,7 @@ def get_weather(lat, lon, API_key):
         return weather_data
     return None
 
-moods = {
+moods = { #a dictionary that has each possible weather condition correspond  to a mood
     'clear sky': 'happy',
     'few clouds': 'relax',
     'scattered clouds': 'chill',
@@ -53,7 +66,7 @@ moods = {
     'overcast clouds': 'melancholy'
 }
 
-mood_characteristics = {
+mood_characteristics = { #mood associated with a song characteristic
     'happy': {
         'min_energy': 0.7,
         'target_danceability': 0.8,
@@ -93,7 +106,7 @@ mood_characteristics = {
         'target_danceability': 0.3,
         'max_tempo': 60,
         'min_valence': 0.1,
-        'max_valence': 0.3
+        'max_valence': 0.2
     },
     'intense': {
         'min_energy': 0.8,
@@ -120,12 +133,16 @@ mood_characteristics = {
         'min_energy': 0.3,
         'target_danceability': 0.3,
         'max_tempo': 80,
-        'min_valence': 0.1,
-        'max_valence': 0.4
+        'min_valence': 0.2,
+        'max_valence': 0.5
     }
 }
 
 def get_user_id(): 
+    '''uses stored access token to retrieve the user id from spotify API
+    params: access token
+    returrns: user id
+    '''
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -139,6 +156,11 @@ def get_user_id():
     return response.json().get('id')
 
 def get_top_genres():
+    '''uses stored access token to retrieve the user's top genres and track ids from their top artists from spotify API
+    params: access token
+    returns: track ids and top genres
+    '''
+
     token = session.get('access_token')
     if 'access_token' not in session:
         return redirect('/login')
@@ -165,7 +187,6 @@ def get_top_genres():
                     genres.update(artist_genres)
 
         return track_ids, list(genres)
-    return [], []
 
 def get_user_playlists():
     if 'access_token' not in session:
