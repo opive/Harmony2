@@ -135,18 +135,12 @@ def artists():
     limit = 10  # Limit to 10 artists
     response = requests.get(os.getenv("API_BASE_URL") + f'me/top/artists?limit={limit}', headers=headers)
     
-    # print(f"Request URL: {os.getenv('API_BASE_URL')}me/top/artists?limit={limit}")
-    # print(f"Response Status Code: {response.status_code}")
-    # print(f"Response JSON: {response.json()}")  # Debugging statements
     
     if response.status_code != 200:
         print(f"Error fetching top artists: {response.json()}")  # Additional error logging
         return redirect('/login')
 
     fav_artists = response.json()
-    print("Favorite Artists:", fav_artists)  # Debugging statement
-
-    print("Rendering fav_artists.html with:", fav_artists["items"])
     return render_template('fav_artists.html', top_artists=fav_artists["items"])
 
 @auth.route('/toptracks')
@@ -169,7 +163,6 @@ def toptracks():
     top_tracks = response.json()
     print("Top tracks:", top_tracks)  # Debugging statement
 
-    print("Rendering top_tracks.html with:", top_tracks["items"])
     return render_template('top_tracks.html', top_tracks = top_tracks["items"])
 
 @auth.route('/relatedartists')
