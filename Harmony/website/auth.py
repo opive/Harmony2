@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, render_template, redirect, request, jsonify, session
+from flask import Blueprint, render_template, redirect, request, jsonify, session
 from dotenv import load_dotenv
 import requests
 from datetime import datetime
@@ -10,7 +10,6 @@ load_dotenv()
 auth = Blueprint('auth', __name__)
 @auth.route('/login')
 def login():
-    print("lol")
     params = {
         'client_id' : os.getenv('CLIENT_ID'),
         'response_type' : 'code',
@@ -56,27 +55,6 @@ def callback():
 
     return jsonify({"error": "Invalid request. No code provided."})
 
-
-    
-@auth.route('/playlists')
-def get_playlists():
-    if 'access_token' not in session:
-        return redirect('/login')
-    
-    if datetime.now().timestamp() > session['expires_at']:
-        return redirect('/refresh-token')
-    
-    headers = {
-        'Authorization' : f"Bearer {session['access_token']}"
-
-    }
-
-    response = requests.get(os.getenv("API_BASE_URL") + '/me/', headers=headers)
-    ##stores result of making a request 
-
-    playlists = response.json()
-    return jsonify(playlists) # returns playlists to user
-
 @auth.route('/refresh-token')
 def refresh_token(): 
     if 'refresh_token' not in session:
@@ -96,6 +74,8 @@ def refresh_token():
         session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in'] #gets current time and adds seconds until token expires
         return redirect('/')
     
+
+    
 @auth.route('/profile')
 def get_user(): 
     if 'access_token' not in session:
@@ -108,7 +88,7 @@ def get_user():
         'Authorization' : f"Bearer {session['access_token']}"
 
     }
-    response = requests.get(os.getenv("API_BASE_URL") + '/me/', headers=headers)
+    response = requests.get('https://api.spotify.com/v1/me', headers=headers)
     profile_info = {
         'display_name': response.json().get('display_name'),
         'email': response.json().get('email'),
@@ -133,12 +113,7 @@ def artists():
     }
 
     limit = 10  # Limit to 10 artists
-    response = requests.get(os.getenv("API_BASE_URL") + f'me/top/artists?limit={limit}', headers=headers)
-    
-    
-    if response.status_code != 200:
-        print(f"Error fetching top artists: {response.json()}")  # Additional error logging
-        return redirect('/login')
+    response = requests.get(f'https://api.spotify.com/v1/me/top/artists?limit={limit}', headers=headers)
 
     fav_artists = response.json()
     return render_template('fav_artists.html', top_artists=fav_artists["items"])
@@ -155,11 +130,8 @@ def toptracks():
         'Authorization': f"Bearer {session['access_token']}"
     }
     limit = 10
-    response = requests.get(os.getenv("API_BASE_URL") + f'me/top/tracks?limit={limit}', headers=headers)
-    if response.status_code != 200:
-        print(f"Error fetching top tracks: {response.json()}")  # Additional error logging
-        return redirect('/login')
-    
+    response = requests.get(f'https://api.spotify.com/v1/me/top/tracks?limit={limit}', headers=headers)
+
     top_tracks = response.json()
     print("Top tracks:", top_tracks)  # Debugging statement
 
@@ -177,18 +149,17 @@ def get_related_artists():
         'Authorization': f"Bearer {session['access_token']}"
     }
     limit = 10
-    top_artists_response = requests.get(os.getenv("API_BASE_URL") + f'me/top/artists?limit={limit}', headers=headers)
-    if top_artists_response.status_code != 200:
-        print(f"Error fetching top artists: {top_artists_response.json()}")
-        return redirect('/login')
+    top_artists_response = requests.get(f'https://api.spotify.com/v1/me/top/artists?limit={limit}', headers=headers)
 
     top_artists = top_artists_response.json()["items"]
     
-    related_artists = []
-    for artist in top_artists:
+    related_artists = [] 
+    for artist in top_artists: #endpoint needs ID
         artist_id = artist['id']
-        response = requests.get(os.getenv("API_BASE_URL") + f'artists/{artist_id}/related-artists', headers=headers)
+        response = requests.get(f'https://api.spotify.com/v1/artists/{artist_id}/related-artists', headers=headers)
         if response.status_code == 200:
-            related_artists.extend(response.json()["artists"])
+            related_artists_data = response.json().get("artists")
+            for related_artist in related_artists_data:
+                related_artists.append(related_artist)
 
     return render_template('related_artists.html', related_artists=related_artists)

@@ -11,7 +11,7 @@ weather_api_key = os.getenv('WEATHER_API_KEY')
 
 weather = Blueprint('weather', __name__)
 
-@dataclass
+@dataclass #structure the weather data fetched from OpenWeather
 class WeatherData:
     main: str
     description: str
@@ -21,9 +21,9 @@ class WeatherData:
 def get_lat_lon(city_name, state_code, country_code, API_key):
     '''calls the Open Weather geocoding API to get a dictionary of data
 
-    params: the user's city's name, state, country (can be name or code), API key
+    params: the user's city's name, state, country (str), API key (str)
 
-    returns: latitude and longitude
+    returns: latitude and longitude or (None, None) if not found.
     '''
     response = requests.get(f'http://api.openweathermap.org/geo/1.0/direct?q={city_name},{state_code},{country_code}&appid={API_key}')
     data = response.json()
@@ -36,7 +36,7 @@ def get_lat_lon(city_name, state_code, country_code, API_key):
 def get_weather(lat, lon, API_key):
     '''calls the OpenWeather API to get the user's weather 
 
-    params: the latititude and longitude, API key
+    params: the latititude and longitude (floats), API key (str)
 
     returns: weather details
     
@@ -53,20 +53,23 @@ def get_weather(lat, lon, API_key):
         return weather_data
     return None
 
-moods = { #a dictionary that has each possible weather condition correspond  to a mood
+moods = {
     'clear sky': 'happy',
     'few clouds': 'relax',
     'scattered clouds': 'chill',
     'broken clouds': 'melancholy',
     'shower rain': 'deep',
-    'rain': 'sad',
+    'shower rain': 'sad',
+    'light rain': 'melancholy',
+    'moderate rain': 'sad',
     'thunderstorm': 'intense',
     'snow': 'cozy',
     'mist': 'calm',
     'overcast clouds': 'melancholy'
+    ''
 }
 
-mood_characteristics = { #mood associated with a song characteristic
+mood_characteristics = {
     'happy': {
         'min_energy': 0.7,
         'target_danceability': 0.8,
@@ -106,7 +109,7 @@ mood_characteristics = { #mood associated with a song characteristic
         'target_danceability': 0.3,
         'max_tempo': 60,
         'min_valence': 0.1,
-        'max_valence': 0.2
+        'max_valence': 0.3
     },
     'intense': {
         'min_energy': 0.8,
@@ -133,8 +136,8 @@ mood_characteristics = { #mood associated with a song characteristic
         'min_energy': 0.3,
         'target_danceability': 0.3,
         'max_tempo': 80,
-        'min_valence': 0.2,
-        'max_valence': 0.5
+        'min_valence': 0.1,
+        'max_valence': 0.4
     }
 }
 
@@ -157,7 +160,9 @@ def get_user_id():
 
 def get_top_genres():
     '''uses stored access token to retrieve the user's top genres and track ids from their top artists from spotify API
-    params: access token
+
+    params: access token (str)
+
     returns: track ids and top genres
     '''
 
@@ -187,8 +192,14 @@ def get_top_genres():
                     genres.update(artist_genres)
 
         return track_ids, list(genres)
+    return [], []
 
 def get_user_playlists():
+    '''
+    Uses the stored access token to retrieve the user's playlists from the Spotify API
+
+    returns: A list of playlist IDs
+    '''
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -202,10 +213,19 @@ def get_user_playlists():
     response = requests.get("https://api.spotify.com/v1/me/playlists", headers=headers)
     if response.status_code == 200:
         playlists = response.json().get('items', [])
-        playlist_ids = [playlist['id'] for playlist in playlists]
+        playlist_ids = []
+        for playlist in playlists:
+            playlist_ids.append(playlist['id'])
         return playlist_ids
 
 def get_track_ids(playlist_ids):
+    '''
+     uses the stored access token to get track IDs from the users playlists
+
+    params: a list of playlist IDs
+
+    Returns:list of track IDs
+    '''
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -226,6 +246,12 @@ def get_track_ids(playlist_ids):
     return track_ids
 
 def fetch_audio_features(track_ids): 
+    ''' Finds the audio features for each track by track ID
+
+    params: a list of tracK_ids
+    
+    returns: a list of audio features dictionaries 
+    '''
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -240,10 +266,19 @@ def fetch_audio_features(track_ids):
         ids = ','.join(track_ids[i:i+100])
         response = requests.get(f'https://api.spotify.com/v1/audio-features?ids={ids}', headers=headers)
         if response.status_code == 200:
-            audio_features.extend(response.json().get('audio_features', []))
+            for feature in response.json().get('audio_features'):
+                audio_features.append(feature)
     return audio_features
 
 def filter_tracks(audio_features, mood):
+    ''' filters tracks based on mood characteristics.
+
+    params: audio_features (list), mood (str): The mood to filter tracks by.
+
+    returns: A list of filtered track IDs 
+    
+    
+    '''
     mood_params = mood_characteristics.get(mood, {})
     filtered_track_ids = []
     for track in audio_features:
@@ -255,6 +290,16 @@ def filter_tracks(audio_features, mood):
     return filtered_track_ids
 
 def get_recommendations(filtered_tracks, genres, mood_params):
+    ''' gets track recs from the Spotify API based on filtered tracks and genres
+
+    params:
+        filtered_tracks (list): list of filtered track IDs
+        genres (list):list of genres
+        mood_params (dict): mood parameter for filtering recommendations
+
+    returns: a list of recommended tracks
+    '''
+
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -264,8 +309,8 @@ def get_recommendations(filtered_tracks, genres, mood_params):
     headers = {
         'Authorization': f"Bearer {session['access_token']}"
     }
-    seed_tracks_param = ','.join(filtered_tracks[:5])  # spotify allows a maximum of 5 seed tracks
-    genre_param = ','.join(genres[:5])  # limit genres to 5
+    seed_tracks_param = ','.join(filtered_tracks[:5])  # spotify allows a maximum of 5 seed tracks, joined as a string
+    genre_param = ','.join(genres[:5])  # limit genres to 5, joined as astring
     
     query_params = { 
         'seed_tracks': seed_tracks_param,
@@ -280,6 +325,16 @@ def get_recommendations(filtered_tracks, genres, mood_params):
     return []
 
 def create_playlist(user_id, track_ids, description):
+    ''' creates a new playlist on Spotify and adds tracks to it.
+
+    params:
+        user_id (str): user's ID
+        track_ids (list): a list of track IDs to add to the playlist
+        description (str): A description for the playlist
+
+    returns: The playlist ID or 'None' if an error occurs
+    
+    '''
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -299,7 +354,9 @@ def create_playlist(user_id, track_ids, description):
     
     if response.status_code == 201:
         playlist_id = response.json().get('id')
-        track_uris = [f'spotify:track:{track_id}' for track_id in track_ids]
+        track_uris = []
+        for track_id in track_ids:
+            track_uris.append(f'spotify:track:{track_id}')
         
         # Add tracks in batches of 100
         for i in range(0, len(track_uris), 100):
@@ -316,6 +373,12 @@ def create_playlist(user_id, track_ids, description):
     return None
 
 def get_playlist(description):
+    ''' combines the recommended tracks and the filtered tracks from the user's playlist
+
+    params: weather description (str)
+    
+    returns: playlist ID of the personalized playlist
+    '''
     if 'access_token' not in session:
         return None
     
@@ -340,8 +403,6 @@ def get_playlist(description):
     for track in recommended_tracks:
         combined_track_ids.append(track['id']) # append the id of each track to combined_track_ids
 
-
-
     user_info_response = requests.get("https://api.spotify.com/v1/me", headers=headers)
     user_id = user_info_response.json().get('id')
 
@@ -351,6 +412,12 @@ def get_playlist(description):
 
 @weather.route('/todays_playlist', methods=['GET', 'POST'])
 def today():
+    '''puts everything together. Gets the weather 
+    
+    '''
+    
+
+
     weather_data = None
     todays_playlist = None
 
