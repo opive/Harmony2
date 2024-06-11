@@ -66,7 +66,7 @@ moods = {
     'snow': 'cozy',
     'mist': 'calm',
     'overcast clouds': 'melancholy'
-    ''
+    
 }
 
 mood_characteristics = {
@@ -412,11 +412,11 @@ def get_playlist(description):
 
 @weather.route('/todays_playlist', methods=['GET', 'POST'])
 def today():
-    '''puts everything together. Gets the weather 
+    '''puts everything together. Gets the weather and passes the decription into getplaylist() for a playlist
+
+    returns the weather specific playlist of the day 
     
     '''
-    
-
 
     weather_data = None
     todays_playlist = None
